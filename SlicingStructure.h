@@ -61,7 +61,7 @@ public:
 
     void applyNetMigration(const std::set<Module*>& netModules, const Point& target = Point(0, 0));
     void reduceDistnace(Module* module1, Module* module2);
-    void moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destination dest);
+    void moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destination dest, Floorplan::Type);
 
 private:
     typedef std::priority_queue<BaseFloorplan*, std::vector<BaseFloorplan*>, CompareY> XCoordFloorplans;

@@ -53,28 +53,36 @@ void SlicingStructure::reduceDistnace(Module* module1, Module* module2)
     assert(0 != f);
 	if (f->type == Floorplan::H) {
 		if (f1->rect.y() < f2->rect.y()) {
-			moveToSide(root, f1, SlicingStructure::TOP);
-			moveToSide(root, f2, SlicingStructure::BOTTOM);
-		} else {
-			moveToSide(root, f1, SlicingStructure::BOTTOM);
-			moveToSide(root, f2, SlicingStructure::TOP);
+            moveToSide(root, f1, SlicingStructure::TOP, f->type);
+            moveToSide(root, f2, SlicingStructure::BOTTOM, f->type);
+        } else if (f1->rect.y() > f2->rect.y()) {
+            moveToSide(root, f1, SlicingStructure::BOTTOM, f->type);
+            moveToSide(root, f2, SlicingStructure::TOP, f->type);
 		}
 		f->recalculateTree();
+        moveToSide(root, f1, SlicingStructure::RIGHT, Floorplan::V);
+        f->recalculateTree();
+        moveToSide(root, f2, SlicingStructure::RIGHT, Floorplan::V);
+        f->recalculateTree();
 		// reduce dist in vert dir
 	} else {
 		if (f1->rect.x() < f2->rect.x()) {
-			moveToSide(root, f1, SlicingStructure::RIGHT);
-			moveToSide(root, f2, SlicingStructure::LEFT);
-		} else {
-			moveToSide(root, f1, SlicingStructure::LEFT);
-			moveToSide(root, f2, SlicingStructure::RIGHT);
+            moveToSide(root, f1, SlicingStructure::RIGHT, f->type);
+            moveToSide(root, f2, SlicingStructure::LEFT, f->type);
+        } else if (f1->rect.x() > f2->rect.x()) {
+            moveToSide(root, f1, SlicingStructure::LEFT, f->type);
+            moveToSide(root, f2, SlicingStructure::RIGHT, f->type);
 		}
 		f->recalculateTree();
+        moveToSide(root, f1, SlicingStructure::BOTTOM, Floorplan::H);
+        f->recalculateTree();
+        moveToSide(root, f2, SlicingStructure::BOTTOM, Floorplan::H);
+        f->recalculateTree();
 		// reduce dist in horiz dir
 	}
 }
 
-void SlicingStructure::moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destination dest)
+void SlicingStructure::moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destination dest, Floorplan::Type type)
 {
     std::vector<Floorplan*> path;
     bool found;
@@ -89,7 +97,7 @@ void SlicingStructure::moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destina
 			isRightChild = true;
 	}
 	for (; it != path.end() - 1; ++it) {
-		if (floorplan->type == (*it)->type) {
+        if (type == (*it)->type) {
 			if (isRightChild && (dest == SlicingStructure::LEFT || dest == SlicingStructure::BOTTOM)) {
 				(*it)->swapChildren();
 			} else if (!isRightChild && (dest == SlicingStructure::RIGHT || dest == SlicingStructure::TOP)) {
