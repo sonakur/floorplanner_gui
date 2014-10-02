@@ -95,13 +95,13 @@ void GraphicsArea::calculateScaleAndPosition()
     }
 
     if (m_floorplan->rect.width() >= m_floorplan->rect.height()) {
-        m_scale = this->width() / m_floorplan->rect.width();
-        m_yShift = (this->height() - m_scale * m_floorplan->rect.height()) / 2;
+        m_scale = (double)this->width() / m_floorplan->rect.width();
+        m_yShift = (this->height() - m_scale * m_floorplan->rect.height()) / 2.0;
         m_xShift = 0;
     } else {
-        m_scale = this->height() / m_floorplan->rect.height();
+        m_scale = (double)this->height() / m_floorplan->rect.height();
         m_yShift = 0;
-        m_xShift = (this->width() - m_scale * m_floorplan->rect.width()) / 2;
+        m_xShift = (this->width() - m_scale * m_floorplan->rect.width()) / 2.0;
     }
 }
 

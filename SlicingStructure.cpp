@@ -27,7 +27,7 @@ SlicingStructure::SlicingStructure()
 SlicingStructure::SlicingStructure(const std::vector<Module*>& modules)
 {
     fillFloorplanMaps(modules);
-	//print();
+    //print();
     buildSlicingTree();
 }
 
@@ -43,43 +43,43 @@ BaseFloorplan* SlicingStructure::floorplan() const
 {
     return m_floorplan;
 }
-    
+
 void SlicingStructure::reduceDistnace(Module* module1, Module* module2)
 {
     LeafFloorplan* f1 = new LeafFloorplan(module1);
     LeafFloorplan* f2 = new LeafFloorplan(module2);
     BaseFloorplan* root = lowestCommonAncestor(m_floorplan, f1, f2);
-	Floorplan* f = dynamic_cast<Floorplan*>(root);
+    Floorplan* f = dynamic_cast<Floorplan*>(root);
     assert(0 != f);
-	if (f->type == Floorplan::H) {
-		if (f1->rect.y() < f2->rect.y()) {
+    if (f->type == Floorplan::H) {
+        if (f1->rect.y() < f2->rect.y()) {
             moveToSide(root, f1, SlicingStructure::TOP, f->type);
             moveToSide(root, f2, SlicingStructure::BOTTOM, f->type);
         } else if (f1->rect.y() > f2->rect.y()) {
             moveToSide(root, f1, SlicingStructure::BOTTOM, f->type);
             moveToSide(root, f2, SlicingStructure::TOP, f->type);
-		}
-		f->recalculateTree();
+        }
+        f->recalculateTree();
         moveToSide(root, f1, SlicingStructure::RIGHT, Floorplan::V);
         f->recalculateTree();
         moveToSide(root, f2, SlicingStructure::RIGHT, Floorplan::V);
         f->recalculateTree();
-		// reduce dist in vert dir
-	} else {
-		if (f1->rect.x() < f2->rect.x()) {
+        // reduce dist in vert dir
+    } else {
+        if (f1->rect.x() < f2->rect.x()) {
             moveToSide(root, f1, SlicingStructure::RIGHT, f->type);
             moveToSide(root, f2, SlicingStructure::LEFT, f->type);
         } else if (f1->rect.x() > f2->rect.x()) {
             moveToSide(root, f1, SlicingStructure::LEFT, f->type);
             moveToSide(root, f2, SlicingStructure::RIGHT, f->type);
-		}
-		f->recalculateTree();
+        }
+        f->recalculateTree();
         moveToSide(root, f1, SlicingStructure::BOTTOM, Floorplan::H);
         f->recalculateTree();
         moveToSide(root, f2, SlicingStructure::BOTTOM, Floorplan::H);
         f->recalculateTree();
-		// reduce dist in horiz dir
-	}
+        // reduce dist in horiz dir
+    }
 }
 
 void SlicingStructure::moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destination dest, Floorplan::Type type)
@@ -88,30 +88,30 @@ void SlicingStructure::moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destina
     bool found;
     found = findPath(root, f, path);
     assert(found);
-	std::vector<Floorplan*>::const_iterator it = path.begin();
-	Floorplan* floorplan = dynamic_cast<Floorplan*>(root);
-	assert(0 != root);
-	bool isRightChild = false;
-	if (((*it)->type == Floorplan::V && (*it)->rect.right() == f->rect.right()) || 
-		((*it)->type == Floorplan::H && (*it)->rect.top() == f->rect.top())) {
-			isRightChild = true;
-	}
-	for (; it != path.end() - 1; ++it) {
+    std::vector<Floorplan*>::const_iterator it = path.begin();
+    Floorplan* floorplan = dynamic_cast<Floorplan*>(root);
+    assert(0 != root);
+    bool isRightChild = false;
+    if (((*it)->type == Floorplan::V && (*it)->rect.right() == f->rect.right()) ||
+        ((*it)->type == Floorplan::H && (*it)->rect.top() == f->rect.top())) {
+            isRightChild = true;
+    }
+    for (; it != path.end() - 1; ++it) {
         if (type == (*it)->type) {
-			if (isRightChild && (dest == SlicingStructure::LEFT || dest == SlicingStructure::BOTTOM)) {
-				(*it)->swapChildren();
-			} else if (!isRightChild && (dest == SlicingStructure::RIGHT || dest == SlicingStructure::TOP)) {
-				(*it)->swapChildren();
-			}
-		}
-		Floorplan* parent = *(it + 1);
-		if ((parent->type == Floorplan::V && parent->rect.right() == (*it)->rect.right()) || 
-			(parent->type == Floorplan::H && parent->rect.top() == (*it)->rect.top())) {
-			isRightChild = true;
-		} else {
-			isRightChild = false;
-		}
-	}
+            if (isRightChild && (dest == SlicingStructure::LEFT || dest == SlicingStructure::BOTTOM)) {
+                (*it)->swapChildren();
+            } else if (!isRightChild && (dest == SlicingStructure::RIGHT || dest == SlicingStructure::TOP)) {
+                (*it)->swapChildren();
+            }
+        }
+        Floorplan* parent = *(it + 1);
+        if ((parent->type == Floorplan::V && parent->rect.right() == (*it)->rect.right()) ||
+            (parent->type == Floorplan::H && parent->rect.top() == (*it)->rect.top())) {
+            isRightChild = true;
+        } else {
+            isRightChild = false;
+        }
+    }
 
 }
 
@@ -128,11 +128,11 @@ bool SlicingStructure::findPath(BaseFloorplan* root, LeafFloorplan* f, std::vect
              return false;
          }
     }
-    
+
     Floorplan* floorplan = dynamic_cast<Floorplan*>(root);
     assert(0 != floorplan);
-	if (findPath(floorplan->left, f, path) || findPath(floorplan->right, f, path)) {
-		path.push_back(floorplan);
+    if (findPath(floorplan->left, f, path) || findPath(floorplan->right, f, path)) {
+        path.push_back(floorplan);
         return true;
     }
     return false;
@@ -143,6 +143,8 @@ void SlicingStructure::applyNetMigration(const std::set<Module*>& moduleNets, co
     _applyNetMigration(m_floorplan, moduleNets, target);
     Floorplan* floorplan = dynamic_cast<Floorplan*>(m_floorplan);
     assert(0 != floorplan);
+    floorplan->recalculateTree();
+    _applyNetMigrationDownward(m_floorplan, moduleNets, target);
     floorplan->recalculateTree();
 }
 
@@ -164,7 +166,13 @@ void SlicingStructure::_applyNetMigration(BaseFloorplan* f, const std::set<Modul
     Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
     assert(0 != floorplan);
     _applyNetMigration(floorplan->left, moduleNets, target);
+    //floorplan->recalculateTree();
+    //_applyNetMigrationDownward(floorplan->left, moduleNets, target);
+    //floorplan->recalculateTree();
     _applyNetMigration(floorplan->right, moduleNets, target);
+    //floorplan->recalculateTree();
+    //_applyNetMigrationDownward(floorplan->right, moduleNets, target);
+    //floorplan->recalculateTree();
 
     floorplan->rect = floorplan->mergedRect();
     floorplan->weight = floorplan->left->weight + floorplan->right->weight;
@@ -205,6 +213,66 @@ void SlicingStructure::_applyNetMigration(BaseFloorplan* f, const std::set<Modul
 	} 
 }
 
+void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target)
+{
+    LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
+    if (leaf != 0) {
+        if (moduleNets.find(leaf->module) != moduleNets.end()) {
+            f->centerOfGravity = Point((f->rect.right() + f->rect.left()) / 2,
+                                        (f->rect.top() + f->rect.bottom()) / 2);
+            f->weight = f->rect.width() * f->rect.height();
+        } else {
+            f->centerOfGravity = Point::undefined;
+            f->weight = 0;
+        }
+        return;
+    }
+
+    Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
+    assert(0 != floorplan);
+
+    floorplan->rect = floorplan->mergedRect();
+    floorplan->weight = floorplan->left->weight + floorplan->right->weight;
+    if (floorplan->type == Floorplan::H) {
+        double density1 = floorplan->left->weight / floorplan->left->rect.height();
+        double density2 = floorplan->right->weight / floorplan->right->rect.height();
+        if (density1 < density2) {
+            if (floorplan->left->vertDistance(target) < floorplan->right->vertDistance(target)) {
+                floorplan->swapChildren();
+            }
+        } else if (density2 < density1){
+            if (floorplan->right->vertDistance(target) < floorplan->left->vertDistance(target)) {
+                floorplan->swapChildren();
+            }
+        }
+    } else {
+        double density1 = floorplan->left->weight / floorplan->left->rect.width();
+        double density2 = floorplan->right->weight / floorplan->right->rect.width();
+        if (density1 < density2) {
+            if (floorplan->left->horizDistance(target) < floorplan->right->horizDistance(target)) {
+                floorplan->swapChildren();
+            }
+        } else if (density2 < density1) {
+            if (floorplan->right->horizDistance(target) < floorplan->left->horizDistance(target)) {
+                floorplan->swapChildren();
+            }
+        }
+    }
+
+    if (floorplan->weight > 0) {
+        if (floorplan->left->weight == 0) {
+            floorplan->centerOfGravity = floorplan->right->centerOfGravity;
+        } else if (floorplan->right->weight == 0) {
+            floorplan->centerOfGravity  = floorplan->left->centerOfGravity;
+        } else {
+            floorplan->centerOfGravity = floorplan->mergedCenterOfGravity();
+        }
+    }
+
+    _applyNetMigrationDownward(floorplan->left, moduleNets, target);
+    _applyNetMigrationDownward(floorplan->right, moduleNets, target);
+}
+
 void SlicingStructure::print()
 {
     std::map<double, XCoordFloorplans* >::const_iterator xIt;
@@ -235,11 +303,11 @@ void SlicingStructure::fillFloorplanMaps(std::vector<Module*> modules)
 {
     std::vector<Module*>::const_iterator it;
     for (it = modules.begin(); it != modules.end(); ++it) {
-	    BaseFloorplan* floorplan = new LeafFloorplan(*it);
+        BaseFloorplan* floorplan = new LeafFloorplan(*it);
         double x = (*it)->rect.x();
-        double y = (*it)->rect.y();        
-		xMapPush(x, floorplan);
-		yMapPush(y, floorplan);       
+        double y = (*it)->rect.y();
+        xMapPush(x, floorplan);
+        yMapPush(y, floorplan);
     }
 }
 
@@ -247,47 +315,47 @@ void SlicingStructure::mergeXFloorplans()
 {
     std::map<double, XCoordFloorplans* >::iterator it = m_xFlrp.begin();
     for (it = m_xFlrp.begin(); it != m_xFlrp.end(); it++) {
-		double currentXCoord = (*it).first;
-        XCoordFloorplans* xCurrentQueue = (*it).second;        
-		BaseFloorplan* currentX = xMapPop(xCurrentQueue);       
+        double currentXCoord = (*it).first;
+        XCoordFloorplans* xCurrentQueue = (*it).second;
+        BaseFloorplan* currentX = xMapPop(xCurrentQueue);
         XCoordFloorplans* mergedXQueue = new XCoordFloorplans();
         while (!xCurrentQueue->empty()) {
             BaseFloorplan* nextX = xMapPop(xCurrentQueue);
 //            std::cout<<nextX->rect.x()<<" "<<nextX->rect.y()<<" "<<nextX->rect.width()<<" "<<nextX->rect.height()<<"\n";
             if (areHorizontalSiblings(currentX, nextX)) {
-                BaseFloorplan* mergedFloorplan = new Floorplan(currentX, nextX, Floorplan::H);				
-				currentX = mergedFloorplan;				
+                BaseFloorplan* mergedFloorplan = new Floorplan(currentX, nextX, Floorplan::H);
+                currentX = mergedFloorplan;
             } else {
-				mergedXQueue->push(currentX);
-				currentX = nextX;
-            } 				
-        }		
-		mergedXQueue->push(currentX);	
-		m_xFlrp[currentXCoord] = mergedXQueue;		
+                mergedXQueue->push(currentX);
+                currentX = nextX;
+            }
+        }
+        mergedXQueue->push(currentX);
+        m_xFlrp[currentXCoord] = mergedXQueue;
     }
 }
 
 void SlicingStructure::mergeYFloorplans()
 {
-	std::map<double, YCoordFloorplans* >::iterator it = m_yFlrp.begin();
+    std::map<double, YCoordFloorplans* >::iterator it = m_yFlrp.begin();
     for (it = m_yFlrp.begin(); it != m_yFlrp.end(); it++) {
-		double currentYCoord = (*it).first;
+        double currentYCoord = (*it).first;
         YCoordFloorplans* yCurrentQueue = (*it).second;
-        BaseFloorplan* currentY = yMapPop(yCurrentQueue);        
+        BaseFloorplan* currentY = yMapPop(yCurrentQueue);
         YCoordFloorplans* mergedYQueue = new YCoordFloorplans();
-		while (!yCurrentQueue->empty()) {
+        while (!yCurrentQueue->empty()) {
             BaseFloorplan* nextY = yMapPop(yCurrentQueue);
   //          std::cout<<nextY->rect.x()<<" "<<nextY->rect.y()<<" "<<nextY->rect.width()<<" "<<nextY->rect.height()<<"\n";
             if (areVerticalSiblings(currentY, nextY)) {
                 BaseFloorplan* mergedFloorplan = new Floorplan(currentY, nextY, Floorplan::V);
-				currentY = mergedFloorplan;				
-            } else {                
+                currentY = mergedFloorplan;
+            } else {
                 mergedYQueue->push(currentY);
-				currentY = nextY;
+                currentY = nextY;
             }
-        }		
-		mergedYQueue->push(currentY);		
-		m_yFlrp[currentYCoord] = mergedYQueue;		
+        }
+        mergedYQueue->push(currentY);
+        m_yFlrp[currentYCoord] = mergedYQueue;
     }
 }
 
@@ -296,7 +364,7 @@ BaseFloorplan* SlicingStructure::lowestCommonAncestor(BaseFloorplan* root, LeafF
     if (root == 0) {
         return 0;
     }
-    
+
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(root);
     if (leaf) {
         if (f1->module->name == leaf->module->name || f2->module->name == leaf->module->name) {
@@ -305,9 +373,9 @@ BaseFloorplan* SlicingStructure::lowestCommonAncestor(BaseFloorplan* root, LeafF
             return 0;
         }
     }
-    
+
     Floorplan* f = dynamic_cast<Floorplan*>(root);
-    assert(0 != f);    
+    assert(0 != f);
     BaseFloorplan* leftAnc = lowestCommonAncestor(f->left, f1, f2);
     BaseFloorplan* rightAnc = lowestCommonAncestor(f->right, f1, f2);
     if (leftAnc && rightAnc) {
@@ -324,33 +392,33 @@ void SlicingStructure::buildSlicingTree()
 {
     while (!m_xFlrp.empty() && !m_yFlrp.empty()) {
         mergeXFloorplans();
-		if (m_xFlrp.size() == 1) {
-			std::map<double, XCoordFloorplans* >::const_iterator it = m_xFlrp.begin();
-			if ((*it).second->size() == 1) {
-				m_floorplan = (*it).second->top();
-				return;
-			}
-		}
-		cleanUnusedXKeys(); // TODO call these functions onnly in case of modificationns
-		fillYMap();
-		
+        if (m_xFlrp.size() == 1) {
+            std::map<double, XCoordFloorplans* >::const_iterator it = m_xFlrp.begin();
+            if ((*it).second->size() == 1) {
+                m_floorplan = (*it).second->top();
+                return;
+            }
+        }
+        cleanUnusedXKeys(); // TODO call these functions onnly in case of modificationns
+        fillYMap();
+
         mergeYFloorplans();
-		if (m_yFlrp.size() == 1) {
-			std::map<double, YCoordFloorplans* >::const_iterator it = m_yFlrp.begin();
-			if ((*it).second->size() == 1) {
-				m_floorplan = (*it).second->top();
-				return;
-			}
-		}
-		cleanUnusedYKeys();
-		fillXMap();
-		
+        if (m_yFlrp.size() == 1) {
+            std::map<double, YCoordFloorplans* >::const_iterator it = m_yFlrp.begin();
+            if ((*it).second->size() == 1) {
+                m_floorplan = (*it).second->top();
+                return;
+            }
+        }
+        cleanUnusedYKeys();
+        fillXMap();
+
     }
 }
 
-bool SlicingStructure::areHorizontalSiblings(BaseFloorplan* f1, BaseFloorplan* f2) const 
+bool SlicingStructure::areHorizontalSiblings(BaseFloorplan* f1, BaseFloorplan* f2) const
 {
-	if (f1->rect.left() == f2->rect.left() && f1->rect.right() == f2->rect.right() && f1->rect.top() == f2->rect.bottom()) {
+    if (f1->rect.left() == f2->rect.left() && f1->rect.right() == f2->rect.right() && f1->rect.top() == f2->rect.bottom()) {
         return true;
     }
     return false;
@@ -358,7 +426,7 @@ bool SlicingStructure::areHorizontalSiblings(BaseFloorplan* f1, BaseFloorplan* f
 
 bool SlicingStructure::areVerticalSiblings(BaseFloorplan* f1, BaseFloorplan* f2) const
 {
-	if (f1->rect.bottom() == f2->rect.bottom() && f1->rect.top() == f2->rect.top() && f2->rect.left() == f1->rect.right()) {
+    if (f1->rect.bottom() == f2->rect.bottom() && f1->rect.top() == f2->rect.top() && f2->rect.left() == f1->rect.right()) {
         return true;
     }
     return false;
@@ -367,7 +435,7 @@ bool SlicingStructure::areVerticalSiblings(BaseFloorplan* f1, BaseFloorplan* f2)
 BaseFloorplan* SlicingStructure::xMapPop(double x)
 {
     BaseFloorplan* top = m_xFlrp[x]->top();
-    m_xFlrp[x]->pop();    
+    m_xFlrp[x]->pop();
     return top;
 }
 
@@ -394,15 +462,15 @@ BaseFloorplan* SlicingStructure::yMapPop(YCoordFloorplans* yQueue)
 
 void SlicingStructure::xMapPush(double x, BaseFloorplan* f)
 {
-	if (m_xFlrp.find(x) == m_xFlrp.end()) {
+    if (m_xFlrp.find(x) == m_xFlrp.end()) {
         m_xFlrp[x] = new XCoordFloorplans();
     }
     m_xFlrp[x]->push(f);
 }
-	
+
 void SlicingStructure::yMapPush(double y, BaseFloorplan* f)
 {
-	if (m_yFlrp.find(y) == m_yFlrp.end()) {
+    if (m_yFlrp.find(y) == m_yFlrp.end()) {
         m_yFlrp[y] = new YCoordFloorplans();
     }
     m_yFlrp[y]->push(f);
@@ -410,62 +478,62 @@ void SlicingStructure::yMapPush(double y, BaseFloorplan* f)
 
 void SlicingStructure::cleanUnusedXKeys()
 {
-	std::map<double, XCoordFloorplans* >::iterator it = m_xFlrp.begin();
-	while (it != m_xFlrp.end()) {
-		if ((*it).second->empty()) {
-			double keyToDelete = (*it).first;
-			delete (*it).second;			
-			it++;
-			m_xFlrp.erase(keyToDelete);
-		} else {
-			++it;
-		}
-	}
+    std::map<double, XCoordFloorplans* >::iterator it = m_xFlrp.begin();
+    while (it != m_xFlrp.end()) {
+        if ((*it).second->empty()) {
+            double keyToDelete = (*it).first;
+            delete (*it).second;
+            it++;
+            m_xFlrp.erase(keyToDelete);
+        } else {
+            ++it;
+        }
+    }
 }
-	
+
 void SlicingStructure::cleanUnusedYKeys()
 {
-	std::map<double, YCoordFloorplans* >::iterator it = m_yFlrp.begin();
-	while (it != m_yFlrp.end()) {
-		if ((*it).second->empty()) {
-			double keyToDelete = (*it).first;
-			delete (*it).second;			
-			it++;
-			m_yFlrp.erase(keyToDelete);
-		} else {
-			++it;
-		}
-	}
+    std::map<double, YCoordFloorplans* >::iterator it = m_yFlrp.begin();
+    while (it != m_yFlrp.end()) {
+        if ((*it).second->empty()) {
+            double keyToDelete = (*it).first;
+            delete (*it).second;
+            it++;
+            m_yFlrp.erase(keyToDelete);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void SlicingStructure::fillXMap()
 {
-	m_xFlrp.clear();
-	std::map<double, YCoordFloorplans* > copy = std::map<double, YCoordFloorplans* >(m_yFlrp);
-	std::map<double, YCoordFloorplans* >::const_iterator it = copy.begin();
-	for (; it != copy.end(); ++it) {
-		YCoordFloorplans* queue = (*it).second;
-		while (!queue->empty()) {
-			BaseFloorplan* f = queue->top();
-			queue->pop();
-			xMapPush(f->rect.x(), f);
-		}
-	}
+    m_xFlrp.clear();
+    std::map<double, YCoordFloorplans* > copy = std::map<double, YCoordFloorplans* >(m_yFlrp);
+    std::map<double, YCoordFloorplans* >::const_iterator it = copy.begin();
+    for (; it != copy.end(); ++it) {
+        YCoordFloorplans* queue = (*it).second;
+        while (!queue->empty()) {
+            BaseFloorplan* f = queue->top();
+            queue->pop();
+            xMapPush(f->rect.x(), f);
+        }
+    }
 }
 
 void SlicingStructure::fillYMap()
 {
-	m_yFlrp.clear();
-	std::map<double, XCoordFloorplans* > copy = std::map<double, XCoordFloorplans* >(m_xFlrp);
-	std::map<double, XCoordFloorplans* >::const_iterator it = copy.begin();
-	for (; it != copy.end(); ++it) {
-		XCoordFloorplans* queue = (*it).second;
-		while (!queue->empty()) {
-			BaseFloorplan* f = queue->top();
-			queue->pop();
-			yMapPush(f->rect.y(), f);
-		}
-	}
+    m_yFlrp.clear();
+    std::map<double, XCoordFloorplans* > copy = std::map<double, XCoordFloorplans* >(m_xFlrp);
+    std::map<double, XCoordFloorplans* >::const_iterator it = copy.begin();
+    for (; it != copy.end(); ++it) {
+        XCoordFloorplans* queue = (*it).second;
+        while (!queue->empty()) {
+            BaseFloorplan* f = queue->top();
+            queue->pop();
+            yMapPush(f->rect.y(), f);
+        }
+    }
 }
 
 
