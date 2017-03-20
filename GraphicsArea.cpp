@@ -110,7 +110,7 @@ void GraphicsArea::setSelectedItems(std::set<Module*> modules)
     m_selectedModules = modules;
 }
 
-void GraphicsArea::paintEvent(QPaintEvent* e)
+void GraphicsArea::paintEvent(QPaintEvent* /* e */)
 {
     m_pixmap = QPixmap(this->size());
     m_pixmap.fill(QColor(Qt::black));

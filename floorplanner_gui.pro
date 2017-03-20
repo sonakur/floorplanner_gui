@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = floorplanner_gui
 TEMPLATE = app
 
+INCLUDEPATH += C:\Boost\include\boost-1_63
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -28,9 +29,5 @@ HEADERS  += mainwindow.h \
     SlicingStructure.h \
     GraphicsArea.h \
     InputOutputManager.h
-
-LIBS += \
-       -lboost_system \
-       -lboost_regex
 
 FORMS    += mainwindow.ui

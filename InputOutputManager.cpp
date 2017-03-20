@@ -5,8 +5,8 @@
 #include <string>
 #include <cassert>
 #include <sstream>
+#include <regex>
 
-#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
 std::pair<std::vector<Module*>, std::set<Module*> > readBlocks(std::string fileName)
@@ -18,13 +18,13 @@ std::pair<std::vector<Module*>, std::set<Module*> > readBlocks(std::string fileN
     }
 
     std::vector<Module*> modules;
-    boost::regex numEx("([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*)( \\+)?");
-    boost::smatch match;
+    std::regex numEx("([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*)( \\+)?");
+    std::smatch match;
     std::string line;
     int counter = 0;
     std::set<Module*> netModules;
     while (std::getline(inFile, line)) {
-        if (boost::regex_match(line, match, numEx)) {
+        if (std::regex_match(line, match, numEx)) {
             assert(match.size() == 6);
             double x = (double)atof(match[1].str().c_str());
             double y = (double)atof(match[2].str().c_str());

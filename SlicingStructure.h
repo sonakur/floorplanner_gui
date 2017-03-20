@@ -100,10 +100,10 @@ private:
     void print(); // remove
 
 private:
+    BaseFloorplan* m_floorplan;
+
     std::map<double, XCoordFloorplans* > m_xFlrp;
     std::map<double, YCoordFloorplans* > m_yFlrp;
-    
-    BaseFloorplan* m_floorplan;
 };
 
 #endif

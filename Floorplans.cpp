@@ -4,7 +4,7 @@
 
 #include "Floorplans.h"
 
-BaseFloorplan::BaseFloorplan(Rectangle r, double w, Point c)
+BaseFloorplan::BaseFloorplan(Rectangle r, double w, Point /* c */)
     : rect(r)
     , weight(w)
 	, centerOfGravity(Point::undefined)

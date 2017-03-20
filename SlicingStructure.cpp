@@ -90,7 +90,7 @@ void SlicingStructure::moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destina
     assert(found);
     std::vector<Floorplan*>::const_iterator it = path.begin();
     Floorplan* floorplan = dynamic_cast<Floorplan*>(root);
-    assert(0 != root);
+    assert(0 != floorplan);
     bool isRightChild = false;
     if (((*it)->type == Floorplan::V && (*it)->rect.right() == f->rect.right()) ||
         ((*it)->type == Floorplan::H && (*it)->rect.top() == f->rect.top())) {
