@@ -38,9 +38,12 @@ struct Floorplan
     BaseFloorplan* left;
     BaseFloorplan* right;
     Type type;
+    bool swap;
 
     Floorplan(BaseFloorplan* l, BaseFloorplan* r, Type t);
     virtual ~Floorplan();
+
+    bool swapCondition(const Floorplan* f, Point p) const;
 
     Rectangle mergedRect() const;
     Point mergedCenterOfGravity() const;

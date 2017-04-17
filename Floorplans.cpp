@@ -51,6 +51,7 @@ Floorplan::Floorplan(BaseFloorplan* l, BaseFloorplan* r, Floorplan::Type t)
     , left(l)
     , right(r)
     , type(t)
+    , swap(false)
 {
 	if (t == Floorplan::H) {
 		assert(l->rect.width() == r->rect.width());
@@ -64,6 +65,16 @@ Floorplan::Floorplan(BaseFloorplan* l, BaseFloorplan* r, Floorplan::Type t)
 
 Floorplan::~Floorplan()
 {
+}
+
+bool Floorplan::swapCondition(const Floorplan* f, Point p) const
+{
+    // TODO: compute the center of gravity of swapped version
+    // compare with the current one, and return the result
+    if (f->type == Floorplan::H) {
+    } else {
+
+    }
 }
 
 Rectangle Floorplan::mergedRect() const
@@ -100,14 +111,20 @@ void Floorplan::swapChildren()
     left = right;
     right = tmp;
 	if (type == Floorplan::V) {
+        // Vertically splitted floorplans should have the same y coord.
 		assert(left->rect.y() == right->rect.y());
+
+        // swap x corrdinates
 		double tmpX = left->rect.x();
 		left->rect.setX(right->rect.x());
 		right->rect.setX(tmpX);
 		left->centerOfGravity.x -= right->rect.width();
 		right->centerOfGravity.x += left->rect.width();
 	} else {
+        // Horizontally splitted floorplans should have the same x coord.
 		assert(left->rect.x() == right->rect.x());
+
+        // swap y coordinates
 		double tmpY = left->rect.y();
 		left->rect.setY(right->rect.y());
 		right->rect.setY(tmpY);

@@ -93,7 +93,7 @@ private:
 	void fillXMap();
 	void fillYMap();
 
-    void _applyNetMigration(BaseFloorplan*, const std::set<Module*>&, const Point&);
+    void _applyNetMigrationUpward(BaseFloorplan*, const std::set<Module*>&, const Point&);
     void _applyNetMigrationDownward(BaseFloorplan*, const std::set<Module*>&, const Point&);
     void calculateWeights(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target);
 	

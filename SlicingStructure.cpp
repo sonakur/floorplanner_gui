@@ -140,7 +140,7 @@ bool SlicingStructure::findPath(BaseFloorplan* root, LeafFloorplan* f, std::vect
 
 void SlicingStructure::applyNetMigration(const std::set<Module*>& moduleNets, const Point& target)
 {
-    _applyNetMigration(m_floorplan, moduleNets, target);
+    _applyNetMigrationUpward(m_floorplan, moduleNets, target);
     Floorplan* floorplan = dynamic_cast<Floorplan*>(m_floorplan);
     assert(0 != floorplan);
     floorplan->recalculateTree();
@@ -148,7 +148,7 @@ void SlicingStructure::applyNetMigration(const std::set<Module*>& moduleNets, co
     floorplan->recalculateTree();
 }
 
-void SlicingStructure::_applyNetMigration(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target)
+void SlicingStructure::_applyNetMigrationUpward(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target)
 {
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
     if (leaf != 0) {
@@ -165,17 +165,13 @@ void SlicingStructure::_applyNetMigration(BaseFloorplan* f, const std::set<Modul
 
     Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
     assert(0 != floorplan);
-    _applyNetMigration(floorplan->left, moduleNets, target);
-    //floorplan->recalculateTree();
-    //_applyNetMigrationDownward(floorplan->left, moduleNets, target);
-    //floorplan->recalculateTree();
-    _applyNetMigration(floorplan->right, moduleNets, target);
-    //floorplan->recalculateTree();
-    //_applyNetMigrationDownward(floorplan->right, moduleNets, target);
-    //floorplan->recalculateTree();
+    _applyNetMigrationUpward(floorplan->left, moduleNets, target);
+    _applyNetMigrationUpward(floorplan->right, moduleNets, target);
 
     floorplan->rect = floorplan->mergedRect();
     floorplan->weight = floorplan->left->weight + floorplan->right->weight;
+
+    // TODO: use swapCondition
     if (floorplan->type == Floorplan::H) {
         double density1 = floorplan->left->weight / floorplan->left->rect.height();
         double density2 = floorplan->right->weight / floorplan->right->rect.height();
