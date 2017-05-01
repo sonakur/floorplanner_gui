@@ -12,8 +12,9 @@ struct BaseFloorplan
 
     BaseFloorplan();
     BaseFloorplan(Rectangle r, double w, Point c);
-    virtual ~BaseFloorplan() = 0;
-    
+    virtual ~BaseFloorplan();
+
+    // TODO: remove
     double vertDistance(const Point& p) const;
     double horizDistance(const Point& p) const;
 };
@@ -43,12 +44,13 @@ struct Floorplan
     Floorplan(BaseFloorplan* l, BaseFloorplan* r, Type t);
     virtual ~Floorplan();
 
-    bool swapCondition(const Floorplan* f, Point p) const;
+//    bool swapCondition(const Floorplan* f, Point p) const;
 
     Rectangle mergedRect() const;
     Point mergedCenterOfGravity() const;
 
     void swapChildren();
+    void swapCoordinates();
 	void recalculateTree();
 
 private:

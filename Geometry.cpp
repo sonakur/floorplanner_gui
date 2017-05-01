@@ -1,4 +1,5 @@
 #include "Geometry.h"
+#include <cmath>
 
 Point Point::undefined = Point(-1, -1);
 
@@ -22,6 +23,13 @@ bool Point::operator == (const Point& p) const
 bool Point::operator != (const Point& p) const
 {
     return (*this) == p;
+}
+
+double Point::distance(const Point& p) const
+{
+    double deltaX = x - p.x;
+    double deltaY = y - p.y;
+    return (std::sqrt(deltaX * deltaX + deltaY * deltaY));
 }
 
 Rectangle::Rectangle(double x, double y, double width, double height)

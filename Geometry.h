@@ -12,6 +12,8 @@ struct Point
     
     bool operator == (const Point& p) const;
     bool operator != (const Point& p) const;
+
+    double distance(const Point& p) const;
 };
 
 class Rectangle
