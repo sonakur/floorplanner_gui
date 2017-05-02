@@ -161,3 +161,19 @@ void Floorplan::_recalculateTree(BaseFloorplan* root)
 	}
 }
 
+void Floorplan::recalculateChildrenCoords()
+{
+    // Coords of left child always match with coords of parent
+    left->rect.setX(rect.x());
+    left->rect.setY(rect.y());
+
+    // Coords of right child differ by width/height of the left one
+    if (type == Floorplan::V) {
+        right->rect.setX(rect.x() + left->rect.width());
+        right->rect.setY(rect.y());
+    } else {
+        right->rect.setX(rect.x());
+        right->rect.setY(rect.y() + left->rect.height());
+    }
+}
+

@@ -29,15 +29,15 @@ Point mergedCenterOfGravity(const BaseFloorplan* left, const BaseFloorplan* righ
 
 Point swappedCenterOfGravity(const Floorplan* f)
 {
-    // Create the left leaf of swapped floorplan, using the right leaf of original one
+    // Create the left child of swapped floorplan, using the right leaf of original one
     BaseFloorplan left(f->right->rect, f->right->weight, f->right->centerOfGravity);
 
-    // Create the right leaf of swapped floorplan, using the left leaf of original one
+    // Create the right child of swapped floorplan, using the left leaf of original one
     BaseFloorplan right(f->left->rect, f->left->weight, f->left->centerOfGravity);
 
     Floorplan swappedFloorplan(&left, &right, f->type);
 
-    // Shift coordinates of swapped leafs
+    // Shift coordinates of swapped children
     swappedFloorplan.swapCoordinates();
 
     return mergedCenterOfGravity(&left, &right);
@@ -212,87 +212,55 @@ void SlicingStructure::_applyNetMigrationUpward(BaseFloorplan* f, const std::set
 
     Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
     assert(0 != floorplan);
+
     _applyNetMigrationUpward(floorplan->left, moduleNets, target);
     _applyNetMigrationUpward(floorplan->right, moduleNets, target);
 
     floorplan->rect = floorplan->mergedRect();
     floorplan->weight = floorplan->left->weight + floorplan->right->weight;
 
+    // If floorplan has 0 weight, no need to optimize anything
+    if (0 == floorplan->weight) {
+        return;
+    }
+
     const Point& mergedCenter = utils::mergedCenterOfGravity(floorplan->left, floorplan->right);
     const Point& swappedCenter = utils::swappedCenterOfGravity(floorplan);
 
     if (utils::swapCondition(mergedCenter, swappedCenter, target)) {
         floorplan->swapChildren();
+        floorplan->centerOfGravity = swappedCenter;
+    } else {
+        floorplan->centerOfGravity = mergedCenter;
     }
-    
-    //TODO: fix
-    if (floorplan->weight > 0) {
-        if (floorplan->left->weight == 0) {
-            floorplan->centerOfGravity = floorplan->right->centerOfGravity;
-        } else if (floorplan->right->weight == 0) {
-            floorplan->centerOfGravity  = floorplan->left->centerOfGravity;
-        } else {
-            floorplan->centerOfGravity = floorplan->mergedCenterOfGravity();
-        }
-	} 
 }
 
 void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target)
 {
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
-    if (leaf != 0) {
-        if (moduleNets.find(leaf->module) != moduleNets.end()) {
-            f->centerOfGravity = Point((f->rect.right() + f->rect.left()) / 2,
-                                        (f->rect.top() + f->rect.bottom()) / 2);
-            f->weight = f->rect.width() * f->rect.height();
-        } else {
-            f->centerOfGravity = Point::undefined;
-            f->weight = 0;
-        }
+    if (0 != leaf) {
         return;
     }
 
     Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
     assert(0 != floorplan);
 
-    floorplan->rect = floorplan->mergedRect();
-    floorplan->weight = floorplan->left->weight + floorplan->right->weight;
-    if (floorplan->type == Floorplan::H) {
-        double density1 = floorplan->left->weight / floorplan->left->rect.height();
-        double density2 = floorplan->right->weight / floorplan->right->rect.height();
-        if (density1 < density2) {
-            if (floorplan->left->vertDistance(target) < floorplan->right->vertDistance(target)) {
-                floorplan->swapChildren();
-            }
-        } else if (density2 < density1){
-            if (floorplan->right->vertDistance(target) < floorplan->left->vertDistance(target)) {
-                floorplan->swapChildren();
-            }
-        }
-    } else {
-        double density1 = floorplan->left->weight / floorplan->left->rect.width();
-        double density2 = floorplan->right->weight / floorplan->right->rect.width();
-        if (density1 < density2) {
-            if (floorplan->left->horizDistance(target) < floorplan->right->horizDistance(target)) {
-                floorplan->swapChildren();
-            }
-        } else if (density2 < density1) {
-            if (floorplan->right->horizDistance(target) < floorplan->left->horizDistance(target)) {
-                floorplan->swapChildren();
-            }
-        }
+    // Fix coords of children
+    floorplan->recalculateChildrenCoords();
+
+    // If floorplan has 0 weight, no need to optimize anything
+    if (0 == floorplan->weight) {
+        return;
     }
 
-    if (floorplan->weight > 0) {
-        if (floorplan->left->weight == 0) {
-            floorplan->centerOfGravity = floorplan->right->centerOfGravity;
-        } else if (floorplan->right->weight == 0) {
-            floorplan->centerOfGravity  = floorplan->left->centerOfGravity;
-        } else {
-            floorplan->centerOfGravity = floorplan->mergedCenterOfGravity();
-        }
+    // Check if further swap will make any improvment
+    const Point& swappedCenter = utils::swappedCenterOfGravity(floorplan);
+    if (utils::swapCondition(floorplan->centerOfGravity, swappedCenter, target)) {
+        floorplan->swapChildren();
+        floorplan->centerOfGravity = swappedCenter;
     }
 
+    // Go recursively down to children
     _applyNetMigrationDownward(floorplan->left, moduleNets, target);
     _applyNetMigrationDownward(floorplan->right, moduleNets, target);
 }

@@ -53,6 +53,11 @@ struct Floorplan
     void swapCoordinates();
 	void recalculateTree();
 
+    // Used for fixing coords of children based on root coords
+    // This is needed, because after upward optimiziation coords
+    // of children need to be fixed if their roots are swapped
+    void recalculateChildrenCoords();
+
 private:
 	void _recalculateTree(BaseFloorplan* root);
 };
