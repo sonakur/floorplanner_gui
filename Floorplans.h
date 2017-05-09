@@ -6,12 +6,12 @@
 
 struct BaseFloorplan
 {
-    Rectangle rect;    
-    double weight;
+    Rectangle rect;
     Point centerOfGravity;
+    double weight;
 
     BaseFloorplan();
-    BaseFloorplan(Rectangle r, double w, Point c);
+    BaseFloorplan(const Rectangle& r, const Point& c, double w);
     virtual ~BaseFloorplan();
 
     // TODO: remove

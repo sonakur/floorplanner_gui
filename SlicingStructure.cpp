@@ -29,11 +29,11 @@ Point mergedCenterOfGravity(const BaseFloorplan* left, const BaseFloorplan* righ
 
 Point swappedCenterOfGravity(const Floorplan* f)
 {
-    // Create the left child of swapped floorplan, using the right leaf of original one
-    BaseFloorplan left(f->right->rect, f->right->weight, f->right->centerOfGravity);
+    // Create the left child of swapped floorplan, using the right child of original one
+    BaseFloorplan left(f->right->rect, f->right->centerOfGravity, f->right->weight);
 
-    // Create the right child of swapped floorplan, using the left leaf of original one
-    BaseFloorplan right(f->left->rect, f->left->weight, f->left->centerOfGravity);
+    // Create the right child of swapped floorplan, using the left child of original one
+    BaseFloorplan right(f->left->rect, f->left->centerOfGravity, f->left->weight);
 
     Floorplan swappedFloorplan(&left, &right, f->type);
 

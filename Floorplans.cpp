@@ -4,10 +4,10 @@
 
 #include "Floorplans.h"
 
-BaseFloorplan::BaseFloorplan(Rectangle r, double w, Point /* c */)
-    : rect(r)
+BaseFloorplan::BaseFloorplan(const Rectangle& r, const Point& c, double w)
+    : rect(r)    
+    , centerOfGravity(c)
     , weight(w)
-	, centerOfGravity(Point::undefined)
 {
 }
 
@@ -37,7 +37,7 @@ double BaseFloorplan::horizDistance(const Point& p) const
 
 
 LeafFloorplan::LeafFloorplan(Module* m)
-	: BaseFloorplan(m->rect, 0, Point::undefined)
+    : BaseFloorplan(m->rect, Point::undefined, 0)
     , module(m)
 {
 }
