@@ -9,11 +9,15 @@ struct Point
 
     Point();
     Point(double _x, double _y);
-    
+
     bool operator == (const Point& p) const;
     bool operator != (const Point& p) const;
 
     double distance(const Point& p) const;
+    bool isNull() const;
+
+    void shiftX(double deltaX);
+    void shiftY(double deltaY);
 };
 
 class Rectangle

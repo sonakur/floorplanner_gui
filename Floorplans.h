@@ -13,10 +13,6 @@ struct BaseFloorplan
     BaseFloorplan();
     BaseFloorplan(const Rectangle& r, const Point& c, double w);
     virtual ~BaseFloorplan();
-
-    // TODO: remove
-    double vertDistance(const Point& p) const;
-    double horizDistance(const Point& p) const;
 };
 
 struct LeafFloorplan

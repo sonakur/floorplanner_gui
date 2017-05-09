@@ -19,23 +19,6 @@ BaseFloorplan::~BaseFloorplan()
 {
 }
 
-double BaseFloorplan::vertDistance(const Point& p) const
-{
-    if (centerOfGravity == Point::undefined) {
-        return fabs((rect.top() + rect.bottom()) / 2 - p.y);
-    }
-    return fabs(centerOfGravity.y - p.y);
-}
-
-double BaseFloorplan::horizDistance(const Point& p) const
-{
-    if (centerOfGravity == Point::undefined) {
-        return fabs((rect.right() + rect.left()) / 2 - p.x);
-    }
-    return fabs(centerOfGravity.x - p.x);
-}
-
-
 LeafFloorplan::LeafFloorplan(Module* m)
     : BaseFloorplan(m->rect, Point::undefined, 0)
     , module(m)
@@ -108,7 +91,7 @@ void Floorplan::swapChildren()
 
 void Floorplan::swapCoordinates()
 {
-    // Shift rects and centers of swapped leafs
+    // Shift rects and centers of swapped children
     if (type == Floorplan::V) {
         // Vertically splitted floorplans should have the same y coord.
         assert(left->rect.y() == right->rect.y());
@@ -118,8 +101,8 @@ void Floorplan::swapCoordinates()
         right->rect.setX(right->rect.x() + left->rect.width());
 
         // Shift centers
-        left->centerOfGravity.x -= right->rect.width();
-        right->centerOfGravity.x += left->rect.width();
+        left->centerOfGravity.shiftX(-right->rect.width());
+        right->centerOfGravity.shiftX(left->rect.width());
     } else {
         // Horizontally splitted floorplans should have the same x coord.
         assert(left->rect.x() == right->rect.x());
@@ -129,8 +112,8 @@ void Floorplan::swapCoordinates()
         right->rect.setY(right->rect.y() + left->rect.height());
 
         // Shift centers
-        left->centerOfGravity.y -= right->rect.height();
-        right->centerOfGravity.y += left->rect.height();
+        left->centerOfGravity.shiftY(-right->rect.height());
+        right->centerOfGravity.shiftY(left->rect.height());
     }
 }
 

@@ -32,6 +32,25 @@ double Point::distance(const Point& p) const
     return (std::sqrt(deltaX * deltaX + deltaY * deltaY));
 }
 
+bool Point::isNull() const
+{
+    return (*this == undefined);
+}
+
+void Point::shiftX(double deltaX)
+{
+    if (!isNull()) {
+        x += deltaX;
+    }
+}
+
+void Point::shiftY(double deltaY)
+{
+    if (!isNull()) {
+        y += deltaY;
+    }
+}
+
 Rectangle::Rectangle(double x, double y, double width, double height)
     : m_x(x)
     , m_y(y)
