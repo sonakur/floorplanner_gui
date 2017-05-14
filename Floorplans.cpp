@@ -146,6 +146,13 @@ void Floorplan::_recalculateTree(BaseFloorplan* root)
 
 void Floorplan::recalculateChildrenCoords()
 {
+    // Calculate gravity centers relative to top left corner point
+    // This is needed for fixing centers after fixing coords
+    const Point leftCenterRel(left->centerOfGravity.x - left->rect.x(),
+                        left->centerOfGravity.y - left->rect.y());
+    const Point rightCenterRel(right->centerOfGravity.x - right->rect.x(),
+                        right->centerOfGravity.y -right->rect.y());
+
     // Coords of left child always match with coords of parent
     left->rect.setX(rect.x());
     left->rect.setY(rect.y());
@@ -157,6 +164,16 @@ void Floorplan::recalculateChildrenCoords()
     } else {
         right->rect.setX(rect.x());
         right->rect.setY(rect.y() + left->rect.height());
+    }
+
+    // fix centers of gravity using relative coords
+    if (!left->centerOfGravity.isNull()) {
+        left->centerOfGravity.x = left->rect.x() + leftCenterRel.x;
+        left->centerOfGravity.y = left->rect.y() + leftCenterRel.y;
+    }
+    if (!right->centerOfGravity.isNull()) {
+        right->centerOfGravity.x = right->rect.x() + rightCenterRel.x;
+        right->centerOfGravity.y = right->rect.y() + rightCenterRel.y;
     }
 }
 
