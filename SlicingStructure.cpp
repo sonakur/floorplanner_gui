@@ -249,15 +249,13 @@ void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::s
     floorplan->recalculateChildrenCoords();
 
     // If floorplan has 0 weight, no need to optimize anything
-    if (0 == floorplan->weight) {
-        return;
-    }
-
-    // Check if further swap will make any improvment
-    const Point& swappedCenter = utils::swappedCenterOfGravity(floorplan);
-    if (utils::swapCondition(floorplan->centerOfGravity, swappedCenter, target)) {
-        floorplan->swapChildren();
-        floorplan->centerOfGravity = swappedCenter;
+    if (0 != floorplan->weight) {
+        // Check if further swap will make any improvment
+        const Point& swappedCenter = utils::swappedCenterOfGravity(floorplan);
+        if (utils::swapCondition(floorplan->centerOfGravity, swappedCenter, target)) {
+            floorplan->swapChildren();
+            floorplan->centerOfGravity = swappedCenter;
+        }
     }
 
     // Go recursively down to children
