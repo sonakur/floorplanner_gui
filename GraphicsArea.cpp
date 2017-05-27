@@ -6,6 +6,9 @@
 
 #include <cassert>
 
+static const GraphicsArea::ColorType colors_data[] = {Qt::black, Qt::darkBlue, Qt::darkGreen};
+const GraphicsArea::ColorType* GraphicsArea::colors = colors_data;
+
 GraphicsArea::GraphicsArea(QWidget* parent)
     : QWidget(parent)
     , m_floorplan(0)
@@ -36,29 +39,43 @@ Point GraphicsArea::recalculatePoint(const QPoint& point) const
 
 void GraphicsArea::drawFloorplan(BaseFloorplan* root)
 {
-    LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(root);
-    if (0 != leaf) {
-        QPainter painter(this);
-        double x  = m_xShift + leaf->rect.x() * m_scale;
-        double y = m_yShift + leaf->rect.y() * m_scale;
-        QRect rect = QRect(x, y, leaf->rect.width() * m_scale, leaf->rect.height() * m_scale);
-        QPen pen(QColor(Qt::black));
-        pen.setWidth(2);
-        painter.setPen(pen);
-        if (m_selectedModules.find(leaf->module) != m_selectedModules.end()) {
-            painter.setBrush(QBrush(QColor(Qt::red)));
-        } else {
-            painter.setBrush(QBrush(QColor(Qt::yellow)));
-        }
-        painter.drawRect(rect);
-        painter.drawText(QPointF(x + 10, y + 15), QString::fromStdString(leaf->module->name));
-        return;
+    _drawFloorplan(root, 0);
+}
+
+void GraphicsArea::_drawFloorplan(BaseFloorplan* root, unsigned short colorIdx)
+{
+    Floorplan* floorplan = dynamic_cast<Floorplan*>(root);
+    if (0 != floorplan)
+    {
+        // Pick a different color for the parent and children
+        _drawFloorplan(floorplan->left, (colorIdx + 1) % 3);
+        _drawFloorplan(floorplan->right, (colorIdx + 2) % 3);
     }
 
-    Floorplan* floorplan = dynamic_cast<Floorplan*>(root);
-    assert(0 != floorplan);
-    drawFloorplan(floorplan->left);
-    drawFloorplan(floorplan->right);
+    QPainter painter(this);
+    double x  = m_xShift + root->rect.x() * m_scale;
+    double y = m_yShift + root->rect.y() * m_scale;
+
+    QRect rect = QRect(x, y, root->rect.width() * m_scale, root->rect.height() * m_scale);
+    QPen pen(colors[colorIdx]);
+    pen.setWidth(2);
+    painter.setPen(pen);
+
+    LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(root);
+    if (0 != leaf) {
+        if (m_selectedModules.find(leaf->module) != m_selectedModules.end()) {
+            painter.setBrush(QBrush(QColor(Qt::cyan)));
+        } else {
+            painter.setBrush(QBrush(QColor(Qt::white)));
+        }
+        painter.drawRect(rect);
+        pen.setColor(Qt::black);
+        painter.setPen(pen);
+        painter.drawText(QPointF(x + 10, y + 15), QString::fromStdString(leaf->module->name));
+        return;
+    } else {
+        painter.drawRect(rect);
+    }
 }
 
 void GraphicsArea::reset()

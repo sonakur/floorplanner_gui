@@ -12,6 +12,10 @@ class GraphicsArea
     : public QWidget
 {
 public:
+
+    typedef Qt::GlobalColor ColorType;
+    static const ColorType* colors;
+
     GraphicsArea(QWidget* parent = 0);
     ~GraphicsArea();
 
@@ -28,6 +32,8 @@ protected:
 
 private:
     void drawFloorplan(BaseFloorplan* root);
+    void _drawFloorplan(BaseFloorplan* root, unsigned short colorIdx);
+
     void drawSelection(LeafFloorplan* leaf);
     void calculateScaleAndPosition();
 
