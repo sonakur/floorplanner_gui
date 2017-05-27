@@ -42,7 +42,7 @@ private:
     GraphicsArea* m_outputView;
     QAction* m_netMigrationAction;
     QAction* m_reduceDistanceAction;
-    QPoint m_targetPoint;
+    Point m_targetPoint;
 };
 
 #endif // MAINWINDOW_H

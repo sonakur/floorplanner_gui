@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_outputView(new GraphicsArea())
     , m_netMigrationAction(0)
     , m_reduceDistanceAction(0)
-    , m_targetPoint(QPoint(0, 0))
+    , m_targetPoint(Point::undefined)
 {
     setWindowTitle("Floorplanner");
     resize(1000, 700);
@@ -47,8 +47,8 @@ void MainWindow::onContextMenuRequested(const QPoint& pos)
     QAction* selectedItem = contextMenu.exec(globalPos);
     if (selectedItem) {
         assert(selectedItem->text() == itemText);
-        m_targetPoint = pos;
-        m_inputView->setTargetPoint(m_inputView->recalculatePoint(m_targetPoint));
+        m_targetPoint = m_inputView->recalculatePoint(pos);
+        m_inputView->setTargetPoint(m_targetPoint);
         m_inputView->draw();
     }
 }
@@ -179,8 +179,8 @@ void MainWindow::runNetMigration()
         m_outputView->setFloorplan(m_outputSlicingStructure->floorplan());
         m_outputView->setSelectedItems(m_moduleInfo.second);
     }
-    m_outputSlicingStructure->applyNetMigration(m_moduleInfo.second, m_inputView->recalculatePoint(m_targetPoint));
-    m_outputView->setTargetPoint(m_outputView->recalculatePoint(m_targetPoint));
+    m_outputSlicingStructure->applyNetMigration(m_moduleInfo.second, m_targetPoint);
+    m_outputView->setTargetPoint(m_targetPoint);
     m_outputView->draw();
 }
 
