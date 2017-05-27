@@ -25,6 +25,7 @@ public:
     void draw();
     void setFloorplan(BaseFloorplan* floorplan);
     void setSelectedItems(std::set<Module*> modules);
+    void setTargetPoint(const Point& point);
 
 protected:
     virtual void paintEvent(QPaintEvent* e);
@@ -34,11 +35,12 @@ private:
     void drawFloorplan(BaseFloorplan* root);
     void _drawFloorplan(BaseFloorplan* root, unsigned short colorIdx);
 
-    void drawSelection(LeafFloorplan* leaf);
+    void drawTarget();
     void calculateScaleAndPosition();
 
 private:
     QPixmap m_pixmap;
+    Point* m_target;
     BaseFloorplan* m_floorplan;
     std::set<Module*> m_selectedModules;
     double m_scale;

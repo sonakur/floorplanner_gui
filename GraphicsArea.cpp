@@ -11,14 +11,18 @@ const GraphicsArea::ColorType* GraphicsArea::colors = colors_data;
 
 GraphicsArea::GraphicsArea(QWidget* parent)
     : QWidget(parent)
-    , m_floorplan(0)
+    , m_target(0)
+    , m_floorplan(0)    
 {
 
 }
 
 GraphicsArea::~GraphicsArea()
 {
-
+    if (m_target) {
+        delete m_target;
+        m_target = 0;
+    }
 }
 
 void GraphicsArea::draw()
@@ -80,23 +84,32 @@ void GraphicsArea::_drawFloorplan(BaseFloorplan* root, unsigned short colorIdx)
 
 void GraphicsArea::reset()
 {
+    if (m_target) {
+        delete m_target;
+        m_target = 0;
+    }
+
     delete m_floorplan;
     m_floorplan = 0;
     draw();
 }
 
-void GraphicsArea::drawSelection(LeafFloorplan *leaf)
+void GraphicsArea::drawTarget()
 {
+    if (!m_target) {
+        return;
+    }
+
     QPainter painter(this);
-    double x  = m_xShift + leaf->rect.x() * m_scale;
-    double y = m_yShift + leaf->rect.y() * m_scale;
-    QRect rect = QRect(x, y, leaf->rect.width() * m_scale, leaf->rect.height() * m_scale);
     QPen pen(QColor(Qt::black));
-    pen.setWidth(2);
+    pen.setWidth(1);
     painter.setPen(pen);
     painter.setBrush(QBrush(QColor(Qt::red)));
-    painter.drawRect(rect);
-    painter.drawText(QPointF(x + 10, y + 15), QString::fromStdString(leaf->module->name));
+
+    double x  = m_xShift + m_target->x * m_scale;
+    double y = m_yShift + m_target->y * m_scale;
+
+    painter.drawEllipse(QPoint(x, y), 3, 3);
 }
 
 void GraphicsArea::setFloorplan(BaseFloorplan* floorplan)
@@ -127,6 +140,11 @@ void GraphicsArea::setSelectedItems(std::set<Module*> modules)
     m_selectedModules = modules;
 }
 
+void GraphicsArea::setTargetPoint(const Point& point)
+{
+    m_target = new Point(point);
+}
+
 void GraphicsArea::paintEvent(QPaintEvent* /* e */)
 {
     m_pixmap = QPixmap(this->size());
@@ -136,6 +154,7 @@ void GraphicsArea::paintEvent(QPaintEvent* /* e */)
     painter.drawPixmap(0, 0, m_pixmap);
     if (m_floorplan != 0) {
         drawFloorplan(m_floorplan);
+        drawTarget();
     }
 }
 

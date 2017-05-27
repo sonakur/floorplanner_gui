@@ -48,6 +48,8 @@ void MainWindow::onContextMenuRequested(const QPoint& pos)
     if (selectedItem) {
         assert(selectedItem->text() == itemText);
         m_targetPoint = pos;
+        m_inputView->setTargetPoint(m_inputView->recalculatePoint(m_targetPoint));
+        m_inputView->draw();
     }
 }
 
@@ -178,6 +180,7 @@ void MainWindow::runNetMigration()
         m_outputView->setSelectedItems(m_moduleInfo.second);
     }
     m_outputSlicingStructure->applyNetMigration(m_moduleInfo.second, m_inputView->recalculatePoint(m_targetPoint));
+    m_outputView->setTargetPoint(m_outputView->recalculatePoint(m_targetPoint));
     m_outputView->draw();
 }
 

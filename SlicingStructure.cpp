@@ -187,12 +187,11 @@ bool SlicingStructure::findPath(BaseFloorplan* root, LeafFloorplan* f, std::vect
 
 void SlicingStructure::applyNetMigration(const std::set<Module*>& moduleNets, const Point& target)
 {
+    // Traverse from leafs to root
     _applyNetMigrationUpward(m_floorplan, moduleNets, target);
-//    Floorplan* floorplan = dynamic_cast<Floorplan*>(m_floorplan);
-//    assert(0 != floorplan);
-//    floorplan->recalculateTree();
+
+    // Traverse from roor to leafs
     _applyNetMigrationDownward(m_floorplan, moduleNets, target);
-//    floorplan->recalculateTree();
 }
 
 void SlicingStructure::_applyNetMigrationUpward(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target)
