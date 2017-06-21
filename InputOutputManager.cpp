@@ -24,6 +24,7 @@ std::pair<std::vector<Module*>, std::set<Module*> > readBlocks(std::string fileN
     int counter = 0;
     std::set<Module*> netModules;
     while (std::getline(inFile, line)) {
+        boost::trim(line);
         if (std::regex_match(line, match, numEx)) {
             assert(match.size() == 6);
             double x = (double)atof(match[1].str().c_str());
