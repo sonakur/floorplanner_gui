@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_outputView(new GraphicsArea())
     , m_netMigrationAction(0)
     , m_reduceDistanceAction(0)
+    , m_netContraction(0)
     , m_targetPoint(Point::undefined)
 {
     setWindowTitle("Floorplanner");
@@ -83,6 +84,11 @@ void MainWindow::createMenus()
     runMenu->addAction(m_netMigrationAction);
     m_netMigrationAction->setEnabled(false);
 
+    m_netContraction = new QAction(tr("&Net Contraction"), this);
+    connect(m_netContraction, SIGNAL(triggered()), this, SLOT(runNetContraction()));
+    runMenu->addAction(m_netContraction);
+    m_netContraction->setEnabled(false);
+
     // help menu items
     QAction* helpAction = new QAction(tr("Help"), this);
     connect(helpAction, SIGNAL(triggered()), this, SLOT(showHelp()));
@@ -121,6 +127,7 @@ void MainWindow::openDesign()
 
         if (moduleInfo.second.size() > 0) {
             m_netMigrationAction->setEnabled(true);
+            m_netContraction->setEnabled(true);
             if (moduleInfo.second.size() == 2) {
                 m_reduceDistanceAction->setEnabled(true);
             } else {
@@ -128,6 +135,7 @@ void MainWindow::openDesign()
             }
         } else {
             m_netMigrationAction->setEnabled(false);
+            m_netContraction->setEnabled(false);
             m_reduceDistanceAction->setEnabled(false);
         }
     }
@@ -181,6 +189,18 @@ void MainWindow::runNetMigration()
     }
     m_outputSlicingStructure->applyNetMigration(m_moduleInfo.second, m_targetPoint);
     m_outputView->setTargetPoint(m_targetPoint);
+    m_outputView->draw();
+}
+
+void MainWindow::runNetContraction()
+{
+    assert(!m_moduleInfo.first.empty() && !m_moduleInfo.second.empty());
+    if (m_outputSlicingStructure == 0) {
+        m_outputSlicingStructure = new SlicingStructure(m_moduleInfo.first);
+        m_outputView->setFloorplan(m_outputSlicingStructure->floorplan());
+        m_outputView->setSelectedItems(m_moduleInfo.second);
+    }
+    m_outputSlicingStructure->applyNetContraction(m_moduleInfo.second);
     m_outputView->draw();
 }
 

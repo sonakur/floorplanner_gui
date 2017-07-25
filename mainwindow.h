@@ -30,6 +30,7 @@ private slots:
     void closeDesign();
     void runReduceDistance();
     void runNetMigration();
+    void runNetContraction();
     void showHelp();
     void showAbout();
     void onContextMenuRequested(const QPoint& );
@@ -42,6 +43,7 @@ private:
     GraphicsArea* m_outputView;
     QAction* m_netMigrationAction;
     QAction* m_reduceDistanceAction;
+    QAction* m_netContraction;
     Point m_targetPoint;
 };
 

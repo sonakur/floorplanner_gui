@@ -190,7 +190,7 @@ void SlicingStructure::applyNetMigration(const std::set<Module*>& moduleNets, co
     // Traverse from leafs to root
     _applyNetMigrationUpward(m_floorplan, moduleNets, target);
 
-    // Traverse from roor to leafs
+    // Traverse from root to leafs
     _applyNetMigrationDownward(m_floorplan, moduleNets, target);
 }
 
@@ -260,6 +260,69 @@ void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::s
     // Go recursively down to children
     _applyNetMigrationDownward(floorplan->left, moduleNets, target);
     _applyNetMigrationDownward(floorplan->right, moduleNets, target);
+}
+
+void SlicingStructure::applyNetContraction(const std::set<Module*>& netModules)
+{
+    calculateWeights(m_floorplan, netModules);
+    applyNetContractionDownward(m_floorplan, netModules);
+}
+
+void SlicingStructure::calculateWeights(BaseFloorplan* f, const std::set<Module*>& moduleNets)
+{
+    LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
+    if (leaf != 0) {
+        if (moduleNets.find(leaf->module) != moduleNets.end()) {
+            f->centerOfGravity = Point((f->rect.right() + f->rect.left()) / 2,
+                                        (f->rect.top() + f->rect.bottom()) / 2);
+            f->weight = f->rect.width() * f->rect.height();
+        } else {
+            f->centerOfGravity = Point::undefined;
+            f->weight = 0;
+        }
+        return;
+    }
+
+    Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
+    assert(0 != floorplan);
+
+    calculateWeights(floorplan->left, moduleNets);
+    calculateWeights(floorplan->right, moduleNets);
+
+    floorplan->rect = floorplan->mergedRect();
+    floorplan->weight = floorplan->left->weight + floorplan->right->weight;
+
+    // If floorplan has 0 weight, no need to optimize anything
+    if (0 == floorplan->weight) {
+        return;
+    }
+
+    const Point& mergedCenter = utils::mergedCenterOfGravity(floorplan->left, floorplan->right);
+    floorplan->centerOfGravity= mergedCenter;
+}
+
+void SlicingStructure::applyNetContractionDownward(BaseFloorplan* f, const std::set<Module*>& moduleNets)
+{
+    LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
+    if (0 != leaf) {
+        return;
+    }
+
+    if (0 == f->weight)
+    {
+        return;
+    }
+
+    Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
+    assert(0 != floorplan);
+
+    // net migration for left subfloorplan
+    _applyNetMigrationUpward(floorplan->left, moduleNets, floorplan->right->centerOfGravity);
+    _applyNetMigrationDownward(floorplan->left, moduleNets, floorplan->right->centerOfGravity);
+
+    // net migration for the right subfloorplan
+    _applyNetMigrationUpward(floorplan->right, moduleNets, floorplan->left->centerOfGravity);
+    _applyNetMigrationDownward(floorplan->right, moduleNets, floorplan->left->centerOfGravity);
 }
 
 void SlicingStructure::print()

@@ -60,6 +60,7 @@ public:
 
 
     void applyNetMigration(const std::set<Module*>& netModules, const Point& target = Point(0, 0));
+    void applyNetContraction(const std::set<Module*>& netModules);
     void reduceDistnace(Module* module1, Module* module2);
     void moveToSide(BaseFloorplan* root, LeafFloorplan* f, Destination dest, Floorplan::Type);
 
@@ -95,7 +96,8 @@ private:
 
     void _applyNetMigrationUpward(BaseFloorplan*, const std::set<Module*>&, const Point&);
     void _applyNetMigrationDownward(BaseFloorplan*, const std::set<Module*>&, const Point&);
-    void calculateWeights(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target);
+    void calculateWeights(BaseFloorplan* f, const std::set<Module*>& moduleNets);
+    void applyNetContractionDownward(BaseFloorplan*, const std::set<Module*>&);
 	
     void print(); // remove
 
