@@ -68,7 +68,7 @@ void GraphicsArea::_drawFloorplan(BaseFloorplan* root, unsigned short colorIdx)
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(root);
     if (0 != leaf) {
         if (m_selectedModules.find(leaf->module) != m_selectedModules.end()) {
-            painter.setBrush(QBrush(QColor(Qt::cyan)));
+            painter.setBrush(QBrush(QColor(Qt::darkGray)));
         } else {
             painter.setBrush(QBrush(QColor(Qt::white)));
         }
@@ -109,7 +109,7 @@ void GraphicsArea::drawTarget()
     double x  = m_xShift + m_target->x * m_scale;
     double y = m_yShift + m_target->y * m_scale;
 
-    painter.drawEllipse(QPoint(x, y), 3, 3);
+    painter.drawEllipse(QPoint(x, y), 4, 4);
 }
 
 void GraphicsArea::setFloorplan(BaseFloorplan* floorplan)
