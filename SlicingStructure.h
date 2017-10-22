@@ -100,6 +100,7 @@ private:
     void applyNetContractionDownward(BaseFloorplan*, const std::set<Module*>&);
 	
     void print(); // remove
+    void getSelectedRects(std::vector<Rectangle>& rects, const std::set<Module*>& moduleNets, BaseFloorplan* f);
 
 private:
     BaseFloorplan* m_floorplan;

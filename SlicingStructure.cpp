@@ -234,6 +234,28 @@ void SlicingStructure::_applyNetMigrationUpward(BaseFloorplan* f, const std::set
     }
 }
 
+void SlicingStructure::getSelectedRects(std::vector<Rectangle>& rects, const std::set<Module*>& moduleNets, BaseFloorplan* f)
+{
+    LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
+    if (0 != leaf) {
+        // is leaf
+        if (moduleNets.find(leaf->module) != moduleNets.end())
+        {
+            // is selected
+            rects.push_back(leaf->rect);
+//            std::cout<<"Found module: "<<leaf->module->name<<"("<<
+//                       leaf->rect.x()<<", "<<leaf->rect.y()<<", "<<leaf->rect.right()<<", "<<leaf->rect.top()<<std::endl;
+        }
+        return;
+    }
+
+    Floorplan* floorplan = dynamic_cast<Floorplan*>(f);
+    assert(0 != floorplan);
+
+    getSelectedRects(rects, moduleNets, floorplan->left);
+    getSelectedRects(rects, moduleNets, floorplan->right);
+}
+
 void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::set<Module*>& moduleNets, const Point& target)
 {
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
@@ -264,8 +286,44 @@ void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::s
 
 void SlicingStructure::applyNetContraction(const std::set<Module*>& netModules)
 {
+    // statistics
+    double sum1 = 0;
+    std::vector<Rectangle> rects;
+    getSelectedRects(rects, netModules, m_floorplan);
+    for (size_t i = 0; i < rects.size(); ++i)
+    {
+        for (size_t j = i + 1; j <rects.size(); ++j)
+        {
+            Point center1 = Point((rects[i].right() + rects[i].left()) / 2,
+                                  (rects[i].top() + rects[i].bottom()) / 2);
+            Point center2 = Point((rects[j].right() + rects[j].left()) / 2,
+                                  (rects[j].top() + rects[j].bottom()) / 2);
+            sum1 += center1.distance(center2);
+        }
+    }
+    std::cout<<"sum1 ="<<sum1<<std::endl;
+
     calculateWeights(m_floorplan, netModules);
     applyNetContractionDownward(m_floorplan, netModules);
+
+    // statistics
+    double sum2 = 0;
+    std::vector<Rectangle> rects2;
+    getSelectedRects(rects2, netModules, m_floorplan);
+    for (size_t i = 0; i < rects2.size(); ++i)
+    {
+        for (size_t j = i + 1; j <rects2.size(); ++j)
+        {
+            Point center1 = Point((rects2[i].right() + rects2[i].left()) / 2,
+                                  (rects2[i].top() + rects2[i].bottom()) / 2);
+            Point center2 = Point((rects2[j].right() + rects2[j].left()) / 2,
+                                  (rects2[j].top() + rects2[j].bottom()) / 2);
+            sum2 += center1.distance(center2);
+        }
+    }
+    std::cout<<"sum2 ="<<sum2<<std::endl;
+
+    std::cout << "%=" << (sum1 - sum2)/ sum1<<std::endl;
 }
 
 void SlicingStructure::calculateWeights(BaseFloorplan* f, const std::set<Module*>& moduleNets)
