@@ -7,9 +7,12 @@ Module::Block::Block(double w, double h, std::string n)
 {
 }
 
-Module::Module(double x_, double y_, double width_, double height_, std::string name_, Block* b)
+Module::Module(double x_, double y_, double width_,
+               double height_, std::string name_,
+               Sign sign_, Block* b)
     : rect(Rectangle(x_, y_, width_, height_))
     , name(name_)
+    , sign(sign_)
     , block(b)
 {
 }

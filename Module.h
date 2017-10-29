@@ -7,6 +7,12 @@
 
 struct Module
 {
+    enum Sign {
+        Pos,
+        Neg,
+        None
+    };
+
     struct Block
     {
         Block(double w, double h, std::string n);
@@ -16,11 +22,14 @@ struct Module
         std::string name;
     };
 
-    Module(double x_, double y_, double width_, double height_, std::string name, Block* b = 0);
+    Module(double x_, double y_, double width_,
+           double height_, std::string name_,
+           Sign sign_ = None, Block* b = 0);
 
     Rectangle rect;
     std::string name;
-    Block* block; 
+    Sign sign;
+    Block* block;
 };
 
 #endif

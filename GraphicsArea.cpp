@@ -67,8 +67,13 @@ void GraphicsArea::_drawFloorplan(BaseFloorplan* root, unsigned short colorIdx)
 
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(root);
     if (0 != leaf) {
-        if (m_selectedModules.find(leaf->module) != m_selectedModules.end()) {
-            painter.setBrush(QBrush(QColor(Qt::darkGray)));
+        const std::set<Module*>::const_iterator it = m_selectedModules.find(leaf->module);
+        if (it != m_selectedModules.end()) {
+            if ((*it)->sign == Module::Pos) {
+                painter.setBrush(QBrush(QColor(Qt::green)));
+            } else if ((*it)->sign == Module::Neg) {
+                painter.setBrush(QBrush(QColor(Qt::red)));
+            }
         } else {
             painter.setBrush(QBrush(QColor(Qt::white)));
         }

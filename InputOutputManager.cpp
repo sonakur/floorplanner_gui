@@ -18,7 +18,7 @@ std::pair<std::vector<Module*>, std::set<Module*> > readBlocks(std::string fileN
     }
 
     std::vector<Module*> modules;
-    std::regex numEx("([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*)( \\+)?");
+    std::regex numEx("([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*) ([0-9]*\\.?[0-9]*)( [+-]{1})?");
     std::smatch match;
     std::string line;
     int counter = 0;
@@ -36,8 +36,11 @@ std::pair<std::vector<Module*>, std::set<Module*> > readBlocks(std::string fileN
             modules.push_back(module);
             std::string status = match[5].str();
             boost::trim(status);
-            bool isFromNet = (status == "+") ? true : false;
-            if (isFromNet) {
+            if (status == "+") {
+                module->sign = Module::Pos;
+                netModules.insert(module);
+            } else if (status =="-") {
+                module->sign = Module::Neg;
                 netModules.insert(module);
             }
         } else {
