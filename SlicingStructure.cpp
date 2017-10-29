@@ -43,9 +43,16 @@ Point swappedCenterOfGravity(const Floorplan* f)
     return mergedCenterOfGravity(&left, &right);
 }
 
-bool swapCondition(const Point& center, const Point& swappedCenter, const Point& target)
+bool swapCondition(const Point& center, const Point& swappedCenter,
+                   const Point& target, double weight)
 {
-    return (center.distance(target) > swappedCenter.distance(target));
+    // If the weight is positive, make a swap if the center after the
+    // swap moves closer to target, otherwise make a swap if center after
+    // swap moves away from target
+    if (weight > 0)
+        return (center.distance(target) > swappedCenter.distance(target));
+    else
+        return (center.distance(target) < swappedCenter.distance(target));
 }
 
 }
@@ -198,10 +205,15 @@ void SlicingStructure::_applyNetMigrationUpward(BaseFloorplan* f, const std::set
 {
     LeafFloorplan* leaf = dynamic_cast<LeafFloorplan*>(f);
     if (leaf != 0) {
-        if (moduleNets.find(leaf->module) != moduleNets.end()) {
+        const std::set<Module*>::const_iterator it = moduleNets.find(leaf->module);
+        if (it != moduleNets.end()) {
             f->centerOfGravity = Point((f->rect.right() + f->rect.left()) / 2, 
                                         (f->rect.top() + f->rect.bottom()) / 2);
             f->weight = f->rect.width() * f->rect.height();
+            if ((*it)->sign == Module::Neg)
+            {
+                f->weight *= -1; // Negative weight
+            }
         } else {
             f->centerOfGravity = Point::undefined;
             f->weight = 0;
@@ -226,7 +238,7 @@ void SlicingStructure::_applyNetMigrationUpward(BaseFloorplan* f, const std::set
     const Point& mergedCenter = utils::mergedCenterOfGravity(floorplan->left, floorplan->right);
     const Point& swappedCenter = utils::swappedCenterOfGravity(floorplan);
 
-    if (utils::swapCondition(mergedCenter, swappedCenter, target)) {
+    if (utils::swapCondition(mergedCenter, swappedCenter, target, floorplan->weight)) {
         floorplan->swapChildren();
         floorplan->centerOfGravity = swappedCenter;
     } else {
@@ -248,10 +260,11 @@ void SlicingStructure::_applyNetMigrationDownward(BaseFloorplan* f, const std::s
     floorplan->recalculateChildrenCoords();
 
     // If floorplan has 0 weight, no need to optimize anything
-    if (0 != floorplan->weight) {
+    if (floorplan->weight != 0) {
         // Check if further swap will make any improvment
         const Point& swappedCenter = utils::swappedCenterOfGravity(floorplan);
-        if (utils::swapCondition(floorplan->centerOfGravity, swappedCenter, target)) {
+        if (utils::swapCondition(floorplan->centerOfGravity, swappedCenter,
+                                 target, floorplan->weight) ) {
             floorplan->swapChildren();
             floorplan->centerOfGravity = swappedCenter;
         }
